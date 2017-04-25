@@ -1,0 +1,84 @@
+# 1. Build for testing
+xcodebuild build-for-testing \
+-derivedDataPath /tmp/derivedData \
+-project ./MyApp.xcodeproj \
+-scheme MyAppTarget \
+-sdk iphonesimulator \
+-destination 'platform=iOS Simulator,name=iPhone 7 Plus'
+
+...
+** TEST BUILD SUCCEEDED **
+
+# 2. Boot simulators
+rm -rf /tmp/test-simulators
+mkdir /tmp/test-simulators
+
+pxctest boot-simulators \
+--deviceset /tmp/test-simulators \
+--destination 'name=iPhone 6,os=iOS 9.3' \
+--destination 'name=iPad Air 2,os=iOS 10.2' \
+--destination 'name=iPhone 7,os=iOS 10.2'
+
+xcrun simctl --set /tmp/test-simulators list devices
+== Devices ==
+-- iOS 9.3 --
+    iPhone 6 (E5E7A0B2-1410-470F-8AC9-51A54F2C0DCE) (Booted)
+-- iOS 10.2 --
+    iPhone 7 (6152C4AA-37EA-4F6E-AF3D-491E2645412F) (Booted)
+    iPad Air 2 (2B4741F9-03C9-48A3-A1C8-F886476239EC) (Booted)
+-- tvOS 10.1 --
+-- watchOS 3.1 --
+
+# 3. Run tests headlessly
+pxctest run-tests \
+--deviceset /tmp/test-simulators \
+--destination 'name=iPhone 6,os=iOS 9.3' \
+--destination 'name=iPad Air 2,os=iOS 10.2' \
+--destination 'name=iPhone 7,os=iOS 10.2' \
+--testrun /tmp/derivedData/Build/Intermediates/CodeCoverage/Products/MyAppTarget_iphonesimulator10.2-x86_64.xctestrun
+
+...
+Total - Finished executing 6 tests. 0 Failures, 0 Unexpected
+
+xcrun simctl --set /tmp/test-simulators list devices
+== Devices ==
+-- iOS 9.3 --
+    iPhone 6 (E5E7A0B2-1410-470F-8AC9-51A54F2C0DCE) (Booted)
+-- iOS 10.2 --
+    iPhone 7 (6152C4AA-37EA-4F6E-AF3D-491E2645412F) (Booted)
+    iPad Air 2 (2B4741F9-03C9-48A3-A1C8-F886476239EC) (Booted)
+-- tvOS 10.1 --
+-- watchOS 3.1 --
+
+# 4. Shut down devices
+xcrun simctl --set /tmp/test-simulators shutdown all
+xcrun simctl --set /tmp/test-simulators list devices
+== Devices ==
+-- iOS 9.3 --
+    iPhone 6 (E5E7A0B2-1410-470F-8AC9-51A54F2C0DCE) (Shutdown)
+-- iOS 10.2 --
+    iPhone 7 (6152C4AA-37EA-4F6E-AF3D-491E2645412F) (Shutdown)
+    iPad Air 2 (2B4741F9-03C9-48A3-A1C8-F886476239EC) (Shutdown)
+-- tvOS 10.1 --
+-- watchOS 3.1 --
+
+# 5. Run tests again (this time the simulator window appears, i.e. tests are not executed headlessly but they still run)
+pxctest run-tests \
+--deviceset /tmp/test-simulators \
+--destination 'name=iPhone 6,os=iOS 9.3' \
+--destination 'name=iPad Air 2,os=iOS 10.2' \
+--destination 'name=iPhone 7,os=iOS 10.2' \
+--testrun /tmp/derivedData/Build/Intermediates/CodeCoverage/Products/MyAppTarget_iphonesimulator10.2-x86_64.xctestrun
+
+...
+Total - Finished executing 6 tests. 0 Failures, 0 Unexpected
+
+xcrun simctl --set /tmp/test-simulators list devices
+== Devices ==
+-- iOS 9.3 --
+    iPhone 6 (E5E7A0B2-1410-470F-8AC9-51A54F2C0DCE) (Booted)
+-- iOS 10.2 --
+    iPhone 7 (6152C4AA-37EA-4F6E-AF3D-491E2645412F) (Booted)
+    iPad Air 2 (2B4741F9-03C9-48A3-A1C8-F886476239EC) (Booted)
+-- tvOS 10.1 --
+-- watchOS 3.1 --
